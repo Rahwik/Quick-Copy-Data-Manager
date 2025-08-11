@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 420px;
+      max-height: 600px;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: #212529;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      margin: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      border: 1px solid #e9ecef;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    
+    .add-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .add-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .content {
+      padding: 20px;
+    }
+    
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      background: #f8f9fa;
+    }
+    
+    .search-box:focus {
+      outline: none;
+      border-color: #6c757d;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+    }
+    
+    .search-box::placeholder {
+      color: #adb5bd;
+    }
+    
+    .data-item {
+      border: 1px solid #dee2e6;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: white;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+    
+    .data-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      border-color: #6c757d;
+    }
+    
+    .item-title {
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 8px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    
+    .item-content {
+      color: #6c757d;
+      font-size: 13px;
+      line-height: 1.5;
+      max-height: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+    
+    .item-actions {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .data-item:hover .item-actions {
+      opacity: 1;
+    }
+    
+    .action-btn {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #dee2e6;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .copy-btn {
+      color: #495057;
+    }
+    
+    .copy-btn:hover {
+      background: #f8f9fa;
+      border-color: #6c757d;
+      color: #212529;
+    }
+    
+    .edit-btn {
+      color: #495057;
+    }
+    
+    .edit-btn:hover {
+      background: #f8f9fa;
+      border-color: #6c757d;
+      color: #212529;
+    }
+    
+    .delete-btn {
+      color: #6c757d;
+    }
+    
+    .delete-btn:hover {
+      background: #f8f9fa;
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+    
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 500px;
+      margin: 10px auto;
+      padding: 10px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      animation: modalSlideIn 0.3s ease;
+      border: 1px solid #dee2e6;
+      max-height: calc(100% - 20px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .modal-content h2 {
+      margin: 0 0 20px 0;
+      color: #212529;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    /* Type selector and image controls */
+    .type-row {
+      display: flex;
+      gap: 12px;
+    }
+    .type-row select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: #f8f9fa;
+      border: 2px solid #dee2e6;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      width: 160px;
+    }
+    .type-row select:focus {
+      outline: none;
+      border-color: #6c757d;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+    }
+    
+    .drop-zone {
+      border: 2px dashed #ced4da;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      color: #6c757d;
+      background: #f8f9fa;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .drop-zone:hover {
+      background: #f1f3f5;
+    }
+    .drop-zone.dragover {
+      border-color: #495057;
+      background: #e9ecef;
+      color: #495057;
+    }
+    .image-preview {
+      margin-top: 10px;
+      display: none;
+    }
+    .image-preview img {
+      max-width: 100%;
+      max-height: 140px;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Make inner form scrollable while keeping actions visible */
+    #dataForm {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .form-body {
+      flex: 1 1 auto;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #495057;
+      font-size: 14px;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      background: #f8f9fa;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #6c757d;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+    }
+    
+    textarea {
+      height: 50px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    /* Validation states */
+    .error-message {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+    .invalid {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+    }
+    
+    .modal-actions {
+      text-align: right;
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #dee2e6;
+      background: white;
+      position: sticky;
+      bottom: 0;
+      flex-shrink: 0;
+    }
+    
+    .modal-actions .btn {
+      margin-left: 0;
+      min-width: 80px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      margin-left: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: inline-block;
+      text-decoration: none;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+      color: white !important;
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(73, 80, 87, 0.3);
+      background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #495057 !important;
+      border: 1px solid #dee2e6;
+    }
+    
+    .btn-secondary:hover {
+      background: #e9ecef;
+      transform: translateY(-1px);
+      color: #212529 !important;
+    }
+    
+    .empty-state {
+      text-align: center;
+      color: #6c757d;
+      padding: 60px 20px;
+    }
+    
+    .empty-state p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 0;
+    }
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    .copied-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #495057;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 1001;
+      opacity: 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(73, 80, 87, 0.3);
+      transform: translateX(100%);
+    }
+    
+    .copied-notification.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .shortcut-hint {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #6c757d;
+      text-align: center;
+    }
+    
+    .shortcut-key {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 0;
+      padding: 12px 16px;
+      text-align: center;
+      color: #ffffff;
+      font-size: 12px;
+      background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+    }
+    .footer a {
+      color: #f8f9fa;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Quick Copy Data</h1>
+      <button class="add-btn" id="addBtn">+ Add New</button>
+    </div>
+    
+    <div class="content">
+      <div class="shortcut-hint">
+        💡 Use <span class="shortcut-key">Alt+X</span> to quickly open this extension
+      </div>
+      
+      <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search your data snippets...">
+      
+      <div id="dataList"></div>
+      
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon">📝</div>
+        <p>No data snippets yet.<br>Click "Add New" to create your first one!</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      Developed by Rahul Prasad · 
+      <a href="https://github.com/Rahwik" target="_blank" rel="noopener noreferrer">github.com/Rahwik</a>
+    </div>
+  </div>
+  
+  <!-- Modal for adding/editing data -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add New Data</h2>
+      <form id="dataForm">
+        <div class="form-body">
+        <div class="form-group type-row">
+          <div style="flex:1">
+            <label for="typeSelect">Type:</label>
+            <select id="typeSelect">
+              <option value="text" selected>Text</option>
+              <option value="image">Image</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="titleInput">Title:</label>
+          <input type="text" id="titleInput" required placeholder="Enter a descriptive title">
+          <div class="error-message" id="titleError">Please enter a title.</div>
+        </div>
+        <div class="form-group" id="textControls">
+          <label for="contentInput">Content:</label>
+          <textarea id="contentInput" required placeholder="Enter your data snippet here..."></textarea>
+          <div class="error-message" id="contentError">Please enter the content.</div>
+        </div>
+        <div id="imageControls" style="display:none">
+          <div class="form-group">
+            <label for="imageUrlInput">Image URL or local path:</label>
+            <input type="text" id="imageUrlInput" placeholder="Paste image URL (https://...) or select a file below">
+            <div class="error-message" id="imageError">Please add an image by URL or file.</div>
+          </div>
+          <div class="form-group">
+            <div class="drop-zone" id="dropZone">Drag & drop image here, or click to choose a file</div>
+            <input type="file" id="imageFileInput" accept="image/*" style="display:none" />
+            <div class="image-preview" id="imagePreviewWrapper">
+              <img id="imagePreview" alt="Preview" />
+            </div>
+            <small style="color:#6c757d">Tip: For local files, use drag-and-drop or the file chooser. Direct disk paths cannot be read by the browser.</small>
+          </div>
+        </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="copied-notification" id="copiedNotification">✅ Copied to clipboard!</div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

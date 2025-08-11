@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Quick Copy Data Manager",
+  "version": "1.0",
+  "description": "Store and quickly copy frequently used data snippets",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Quick Copy Data"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+X",
+        "mac": "Alt+X"
+      },
+      "description": "Open Quick Copy popup"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
