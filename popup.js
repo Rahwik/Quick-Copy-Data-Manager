@@ -12,10 +12,10 @@ class QuickCopyManager {
   }
   
   async loadData() {
-    // Use local storage to allow larger payloads (images as data URLs)
+
     const localResult = await chrome.storage.local.get(['quickCopyData']);
     let loaded = localResult.quickCopyData || [];
-    // Migrate from sync if nothing in local
+
     if (loaded.length === 0) {
       const syncResult = await chrome.storage.sync.get(['quickCopyData']);
       loaded = syncResult.quickCopyData || [];
@@ -23,7 +23,7 @@ class QuickCopyManager {
         await chrome.storage.local.set({ quickCopyData: loaded });
       }
     }
-    // Ensure type defaults to text for legacy items
+
     this.data = loaded.map(item => ({ type: 'text', ...item }));
   }
   
@@ -32,7 +32,7 @@ class QuickCopyManager {
   }
   
   setupEventListeners() {
-    // Add button - ensure it exists before adding listener
+
     const addBtn = document.getElementById('addBtn');
     if (addBtn) {
       addBtn.addEventListener('click', (e) => {
@@ -42,7 +42,7 @@ class QuickCopyManager {
       });
     }
     
-    // Cancel button
+
     const cancelBtn = document.getElementById('cancelBtn');
     if (cancelBtn) {
       cancelBtn.addEventListener('click', (e) => {
@@ -51,7 +51,7 @@ class QuickCopyManager {
       });
     }
     
-    // Form submission
+
     const dataForm = document.getElementById('dataForm');
     if (dataForm) {
       dataForm.addEventListener('submit', (e) => {
@@ -60,7 +60,7 @@ class QuickCopyManager {
       });
     }
     
-    // Save button click handler (backup)
+
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
       saveBtn.addEventListener('click', (e) => {
@@ -69,7 +69,7 @@ class QuickCopyManager {
       });
     }
     
-    // Search functionality
+
     const searchBox = document.getElementById('searchBox');
     if (searchBox) {
       searchBox.addEventListener('input', (e) => {
@@ -77,7 +77,7 @@ class QuickCopyManager {
       });
     }
     
-    // Close modal when clicking outside
+
     const modal = document.getElementById('modal');
     if (modal) {
       modal.addEventListener('click', (e) => {
@@ -87,7 +87,7 @@ class QuickCopyManager {
       });
     }
 
-    // Type select and image controls
+
     const typeSelect = document.getElementById('typeSelect');
     const textControls = document.getElementById('textControls');
     const imageControls = document.getElementById('imageControls');
@@ -110,14 +110,13 @@ class QuickCopyManager {
         if (textControls) textControls.style.display = isImage ? 'none' : 'block';
         if (imageControls) imageControls.style.display = isImage ? 'block' : 'none';
         if (contentInput) contentInput.required = !isImage;
-        // Clear validation states on switch
+
         [contentInput, imageUrlInput].forEach(el => el && el.classList.remove('invalid'));
         if (contentError) contentError.style.display = 'none';
         if (imageError) imageError.style.display = 'none';
       });
     }
 
-    // Clear errors while typing
     if (titleInput) {
       titleInput.addEventListener('input', () => {
         titleInput.classList.remove('invalid');
@@ -244,11 +243,11 @@ class QuickCopyManager {
     const title = titleInput.value.trim();
     const type = typeSelect ? typeSelect.value : 'text';
 
-    // Reset validation states
+
     [titleInput, contentInput, imageUrlInput].forEach(el => el && el.classList.remove('invalid'));
     [titleError, contentError, imageError].forEach(el => el && (el.style.display = 'none'));
 
-    // Validate required fields
+
     let hasError = false;
     if (!title) {
       titleInput.classList.add('invalid');
@@ -275,7 +274,7 @@ class QuickCopyManager {
         this.data.unshift(newItem);
       }
     } else {
-      // Image
+
       const imageSrc = this.selectedImageDataUrl || (imageUrlInput ? imageUrlInput.value.trim() : '');
       const imageKind = this.selectedImageDataUrl ? 'dataUrl' : (imageSrc ? 'url' : null);
       if (!imageSrc || !imageKind) {
@@ -283,7 +282,7 @@ class QuickCopyManager {
         if (imageError) imageError.style.display = 'block';
         return;
       }
-      // If any previous validation errors (e.g., missing title), block save
+
       if (hasError) return;
       if (this.editingId) {
         const index = this.data.findIndex(item => item.id === this.editingId);
@@ -314,7 +313,7 @@ class QuickCopyManager {
       await navigator.clipboard.writeText(content);
       this.showCopiedNotification();
     } catch (err) {
-      // Fallback for older browsers
+
       const textArea = document.createElement('textarea');
       textArea.value = content;
       document.body.appendChild(textArea);
@@ -378,7 +377,7 @@ class QuickCopyManager {
       </div>`;
     }).join('');
     
-    // Add event listeners for action buttons
+
     dataList.querySelectorAll('.action-btn').forEach(button => {
       button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -402,11 +401,10 @@ class QuickCopyManager {
         }
       });
     });
-    
-    // Add click to copy functionality for the entire item
+
     dataList.querySelectorAll('.data-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        // Don't trigger if clicking on action buttons
+
         if (e.target.classList.contains('action-btn')) return;
         
         const id = item.getAttribute('data-id');
@@ -443,13 +441,12 @@ class QuickCopyManager {
       await navigator.clipboard.write([item]);
       this.showCopiedNotification();
     } catch (e) {
-      // Fallback: copy URL/text
+
       await this.copyToClipboard(src);
     }
   }
 }
 
-// Initialize the manager when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   window.manager = new QuickCopyManager();
 });
